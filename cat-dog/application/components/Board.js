@@ -5,7 +5,8 @@ import {
   TouchableOpacity,
   Alert,
   Button,
-  Image
+  Image,
+  Text
 } from "react-native";
 
 export default class Board extends React.Component {
@@ -95,10 +96,10 @@ export default class Board extends React.Component {
     //Getting Winners
     var winner = this.getWinner();
     if (winner == 1) {
-      Alert.alert("player 1 is the winner");
+      Alert.alert("¡DOG ES EL GANADOR!");
       this.initializeGame();
     } else if (winner == -1) {
-      Alert.alert("player 2 is the winner");
+      Alert.alert("¡CAT ES EL GANADOR!");
       this.initializeGame();
     } else if (winner == 7) {
       Alert.alert("no one has won");
@@ -106,6 +107,7 @@ export default class Board extends React.Component {
     }
   };
 
+  
   renderIcon = (row, col) => {
     var value = this.state.gameState[row][col];
     switch (value) {
@@ -137,10 +139,46 @@ export default class Board extends React.Component {
         return <View />;
     }
   };
+
+  whosNext = () => {
+    if(this.state.currentPlayer == 1) {
+      return (
+        <Image
+            source={{ uri: "http://i67.tinypic.com/r0q9zb.png" }}
+            style={{
+              width: 40,
+              height: 40,
+              alignSelf: "center",
+              marginVertical: 18
+            }}
+          />
+      )
+    } else if (this.state.currentPlayer == -1) {
+      return (
+        <Image
+        source={{ uri: "http://i65.tinypic.com/j5dlso.png" }}
+        style={{
+          width: 40,
+          height: 40,
+          alignSelf: "center",
+          marginVertical: 18
+        }}
+      />
+      )
+    }
+  }
+
   render() {
     return (
-      <View style={styles.container}>
-        <View style={{ flexDirection: "row" }}>
+      <View>
+
+<View style={{marginBottom: 30}}><Text style={styles.bigBlue}>SIGUIENTE JUGADOR:</Text> 
+
+{this.whosNext()}
+</View>
+       
+       <View style={{marginBottom: 30}}>
+        <View style={{ flexDirection: "row"}}>
           <TouchableOpacity
             onPress={() => this.onBoardPress(0, 0)}
             style={[styles.board, { borderLeftWidth: 0, borderTopWidth: 0 }]}
@@ -208,9 +246,12 @@ export default class Board extends React.Component {
           >
             {this.renderIcon(2, 2)}
           </TouchableOpacity>
+          </View>
         </View>
 
-        <Button title="New game" onPress={this.initializeGame} />
+       
+        <Button title="REINICIAR JUEGO" onPress={this.initializeGame}/>
+      
       </View>
     );
   }
@@ -222,13 +263,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderColor: "#7ed957"
-  },
-  bone: {
-    color: "#7d6f5d",
-    fontSize: 77
-  },
-  cat: {
-    color: "#df7750",
-    fontSize: 77
+  }, bigBlue: {
+    color: "#00ced1",
+    fontWeight: 'bold',
+    fontSize: 25,
+    alignSelf: 'center'
   }
 });
