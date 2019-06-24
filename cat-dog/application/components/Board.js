@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from 'react-native-elements';
 import { StyleSheet, View, TouchableOpacity, Image, Text, Modal, TouchableHighlight, ImageBackground } from "react-native";
 
+
 export default class Board extends React.Component {
   constructor(props) {
     super(props);
@@ -42,11 +43,11 @@ export default class Board extends React.Component {
   //Return 1 if player 1 won, -1 if player 2 won or 0 if no one has won.
   getWinner = () => {
     const NUM_BOARD = 3;
-    var boardState = this.state.gameState;
-    var sum;
+    let boardState = this.state.gameState;
+    let sum;
 
     //Checking rows
-    for (var i = 0; i < NUM_BOARD; i++) {
+    for (let i = 0; i < NUM_BOARD; i++) {
       sum = boardState[i][0] + boardState[i][1] + boardState[i][2];
       if (sum == 3) {
         return 1;
@@ -56,7 +57,7 @@ export default class Board extends React.Component {
     }
 
     //checking columns
-    for (var i = 0; i < NUM_BOARD; i++) {
+    for (let i = 0; i < NUM_BOARD; i++) {
       sum = boardState[0][i] + boardState[1][i] + boardState[2][i];
       if (sum == 3) {
         return 1;
@@ -88,21 +89,21 @@ export default class Board extends React.Component {
     })
     console.log(this.state.plays)
     //Don't allow double touch on board
-    var value = this.state.gameState[row][col];
+    let value = this.state.gameState[row][col];
     if (value !== 0) {
       return;
     }
     //Grab current player
-    var currentPlayer = this.state.currentPlayer;
+    let currentPlayer = this.state.currentPlayer;
     //Getting board
-    var boardArr = this.state.gameState.slice();
+    let boardArr = this.state.gameState.slice();
     boardArr[row][col] = currentPlayer;
     this.setState({ gameState: boardArr });
     //Switching players
-    var nextPlayer = currentPlayer == 1 ? -1 : 1;
+    let nextPlayer = currentPlayer == 1 ? -1 : 1;
     this.setState({ currentPlayer: nextPlayer });
     //Getting Winners
-    var winner = this.getWinner();
+    let winner = this.getWinner();
     if (winner == 1) {
       this.setModalVisible(true)
       this.setState({
@@ -122,7 +123,7 @@ export default class Board extends React.Component {
   };
 
   renderIcon = (row, col) => {
-    var value = this.state.gameState[row][col];
+    let value = this.state.gameState[row][col];
     switch (value) {
       case 1:
         return (
