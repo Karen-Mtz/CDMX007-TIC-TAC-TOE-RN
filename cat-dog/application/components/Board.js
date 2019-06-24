@@ -15,17 +15,20 @@ export default class Board extends React.Component {
 
     this.state = {
       gameState: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-      currentPlayer: 1
+      currentPlayer: 1,
+      plays: 1
     };
   }
 
   componentDidMount() {
     this.initializeGame();
   }
+
   initializeGame = () => {
     this.setState({
       gameState: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-      currentPlayer: 1
+      currentPlayer: 1,
+      plays: 1
     });
   };
 
@@ -71,15 +74,19 @@ export default class Board extends React.Component {
     }
 
     //No winners
-    return 0;
   };
 
   onBoardPress = (row, col) => {
+    let turns = this.state.plays + 1;
+    this.setState({ 
+      plays: turns
+    })
+    console.log(this.state.plays)
     //Don't allow double touch on board
     var value = this.state.gameState[row][col];
     if (value !== 0) {
       return;
-    }
+    } 
 
     //Grab current player
     var currentPlayer = this.state.currentPlayer;
@@ -101,7 +108,7 @@ export default class Board extends React.Component {
     } else if (winner == -1) {
       Alert.alert("¡CAT ES EL GANADOR!");
       this.initializeGame();
-    } else if (winner == 7) {
+    } else if (this.state.plays == 9 && winner != -1 && 1) {
       Alert.alert("no one has won");
       this.initializeGame();
     }
