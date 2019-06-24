@@ -1,8 +1,10 @@
 import React from "react";
 import { Button } from 'react-native-elements';
-import { StyleSheet, View, TouchableOpacity, Image, Text, Modal, TouchableHighlight, ImageBackground } from "react-native";
+import { StyleSheet, View, TouchableOpacity, Image, Text, Modal, ImageBackground } from "react-native";
 
-
+/*SE UTILIZA CONSTRUCTOR PORQUE EN ESTE COMPONENTE
+INICIALIZAMOS UN ESTADO LOCAL Y USAMOS SUPER PARA QUE NO 
+HAYA ERRORES AL ACCEDER A LOS PROPS */
 export default class Board extends React.Component {
   constructor(props) {
     super(props);
@@ -15,10 +17,16 @@ export default class Board extends React.Component {
     };
   }
 
+/* ESTE MÉTODO LLAMA A UNA FUNCIÓN QUE 
+LIMPIA EL TABLERO E INICIALIZA EL ESTADO 
+DEL JUEGO CADA QUE SE CARGA EL COMPONENTE */
   componentDidMount() {
     this.initializeGame();
   }
-
+/*ESTA FUNCION REINICIA EL ESTADO DEL JUEGO
+ASIGNANDO NUEVOS ESTADOS (SE LLAMA CUANDO
+SE CARGA EL COMPONENTE POR PRIMERA VEZ Y 
+EN EL BOTÓN DE REINICIAR) */
   initializeGame = () => {
     this.setState({
       gameState: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -26,27 +34,24 @@ export default class Board extends React.Component {
       plays: 1
     });
   };
-
-  reinitializeGame = () => {
-    this.setModalVisible(!this.state.modalVisible);
-    this.setState({
-      gameState: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-      currentPlayer: 1,
-      plays: 1
-    });
-  };
-
+/*ESTA FUNCIÓN ACTIVA EL MODAL (SE LLAMA 
+CUANDO HAY UN GANADOR O HAY UN EMPATE)*/
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
   }
-
-  //Return 1 if player 1 won, -1 if player 2 won or 0 if no one has won.
+/*ESTA FUNCION BUSCA A LOS GANADORES EN EJES Y & X
+& DIAGONALES, COMO EL TABLERO SE COMPONE DE UN ARRAY
+CON VALORES INICIALES EN 0 QUE VAN CAMBIANDO A 1 O -1 
+EN CADA EVENTO. CADA QUE SE PRESIONA UNA CASILLA DEL 
+TABLERO, SE HACE UNA SUMA DE LOS VALORES DE CADA FILA,
+COLUMNA Y DIAGONAL. CUANDO ESTA SEA IGUAL A 3 O -3 HAY 
+UN GANADOR  */
   getWinner = () => {
     const NUM_BOARD = 3;
     let boardState = this.state.gameState;
     let sum;
 
-    //Checking rows
+    //FILAS
     for (let i = 0; i < NUM_BOARD; i++) {
       sum = boardState[i][0] + boardState[i][1] + boardState[i][2];
       if (sum == 3) {
@@ -56,7 +61,7 @@ export default class Board extends React.Component {
       }
     }
 
-    //checking columns
+    //COLUMNAS
     for (let i = 0; i < NUM_BOARD; i++) {
       sum = boardState[0][i] + boardState[1][i] + boardState[2][i];
       if (sum == 3) {
@@ -66,7 +71,7 @@ export default class Board extends React.Component {
       }
     }
 
-    //checking diagonals
+    //DIAGONALES
     sum = boardState[0][0] + boardState[1][1] + boardState[2][2];
     if (sum == 3) {
       return 1;
@@ -82,27 +87,42 @@ export default class Board extends React.Component {
     }
   };
 
+  /*ESTA FUNCIÓN SE EJECUTA CADA QUE UN USUARIO TOMA SU TURNO 
+  Y PRESIONA UNA CASILLA DEL TABLERO.*/
   onBoardPress = (row, col) => {
+  /*PRIMERO SE ASIGNA UNA VARIABLE QUE VA A CAMBIAR EL 
+  ESTADO DE LOS TURNOS (PARA VERIFICAR SI HAY EMPATE 
+  CUANDO HAYAN SUCEDIDO LAS 9 JUGADAS)*/
     let turns = this.state.plays + 1;
     this.setState({
       plays: turns
     })
-    console.log(this.state.plays)
-    //Don't allow double touch on board
+  /*TAMBIÉN ESTA FUNCIÓN HACE QUE UNA CASILLA NO PUEDA SER SELECCIONADA
+  DOS VECES (COMPRUEBA SI EL VALOR DE LAS CASILLAS ES DISTINTO A CERO
+  Y SI LO ES, EVITA QUE SEA SELECCIONADA NUEVAMENTE)*/
     let value = this.state.gameState[row][col];
     if (value !== 0) {
       return;
     }
-    //Grab current player
+  /*DESPUÉS OBTIENE EL JUGADOR ACTUAL PARA 
+  CAMBIARLO EN CADA TURNO */
     let currentPlayer = this.state.currentPlayer;
-    //Getting board
+  /*SE HACE UNA COPIA DEL ARRAY (TABLERO) CON EL MÉTODO
+  SLICE PARA ASIGNARLE LOS NUEVOS VALORES (LOS CUALES
+  SERÁN IGUALES AL JUGADOR ACTUAL (1 O -1) Y ASÍ IDENTIFICAR
+  QUIÉN FUE EL GANADOR) */
     let boardArr = this.state.gameState.slice();
     boardArr[row][col] = currentPlayer;
     this.setState({ gameState: boardArr });
-    //Switching players
+  /*PARA HACER EL CAMBIO DE JUGADORES SE USA
+  UN OPERADOR CONDICIONAL TERNARIO PARA IDENTIFICAR
+  SI ES 1 O -1 Y CAMBIARLO */
     let nextPlayer = currentPlayer == 1 ? -1 : 1;
     this.setState({ currentPlayer: nextPlayer });
-    //Getting Winners
+  /*PARA OBTENER A LOS GANADORES SE OBTIENE EL 
+  RESULTAD DE LA FUNCION QUE SUMA LAS COLUMAS FILAS 
+  Y DIAGONALES PARA VERIFICAR AL USUARIO GANADOR Y 
+  ENVIAR LA INFORMACIÓN AL MODAL QUE ANUNCIARÁ AL GANADOR */
     let winner = this.getWinner();
     if (winner == 1) {
       this.setModalVisible(true)
@@ -121,7 +141,11 @@ export default class Board extends React.Component {
       })
     }
   };
-
+  /*ESTA FUNCIÓN PINTA LOS PERSONAJES EN EL TABLERO
+  RECIBE LAS COORDENADAS DE LAS FILAS Y COLUMNAS CUANDO
+  ES EJECUTADA Y VERIFICA EL VALOR DE ESA CORDENADA
+  (SI ES IGUAL A 1 MUESTRA UN PERRO, SI ES IGUAL A -1
+  MUESTRA UN GATO ) */
   renderIcon = (row, col) => {
     let value = this.state.gameState[row][col];
     switch (value) {
@@ -153,7 +177,8 @@ export default class Board extends React.Component {
         return <View />;
     }
   };
-
+/* ESTA FUNCIÓN CONSULTA EL ESTADO DEL JUGADOR
+PARA IDENTIFICAR QUIÉN ES EL SIGUIENTE */
   whosNext = () => {
     if (this.state.currentPlayer == 1) {
       return (
@@ -165,7 +190,16 @@ export default class Board extends React.Component {
       )
     }
   }
-
+/* RENDERIZADO DEL COMPONENTE 
+- SE LLAMA A THIS.WHOSNEXT() PARA OBTENER EL TURNO DEL JUGADOR
+- SE PINTA EL TABLERO CON 9 VIEWS, CADA UNO LLAMA A DOS FUNCIONES:
+1) THIS.ONBOARDPRESS() LE ENVÍA LAS COORDENADAS O VALORES DEL ARRAY
+LOS CUALES SERÁN MODIFICADOS DE ACUERDO AL CURRENT USER.
+2) THIS.RENDERICON() IGUAL ENVÍA LOS VALORES (COORDENADAS) DEL ARRAY
+PARA QUE ESTA FUNCIÓN CONSULTE EL CURRENT PLAYER Y ASIGNE EL VALOR 1 O -1
+Y ASÍ MUESTRE PERRO O GATO DEPENDIENDO DEL TURNO 
+ESTÁ EL MODAL QUE MUESTRA AL JUGADOR GANADOR LLAMANDO AL ESTADO DEL GANADOR
+Y TIENE UN BOTÓN QUE LIMPIA EL TABLERO PARA UN NUEVO JUEGO.*/
   render() {
     return (
       <ImageBackground source={{ uri: "http://i65.tinypic.com/296gl5z.jpg" }} style={{ width: '100%', height: '100%' }}>
@@ -267,7 +301,14 @@ export default class Board extends React.Component {
                       titleStyle={{ color: 'white' }}
                       type="clear"
                       containerStyle={[{ backgroundColor: 'palevioletred', borderRadius: 30, width: 200, marginLeft: 85, marginTop: 40 }]}
-                      onPress={this.reinitializeGame}>
+                      onPress={() => {
+                        this.setModalVisible(!this.state.modalVisible)
+                        this.setState({
+                          gameState: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+                          currentPlayer: 1,
+                          plays: 1
+                        });
+                      }}>
                     </Button>
                   </View>
                 </View>
