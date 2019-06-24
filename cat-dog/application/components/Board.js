@@ -1,22 +1,16 @@
 import React from "react";
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Alert,
-  Button,
-  Image,
-  Text
-} from "react-native";
+import { Button } from 'react-native-elements';
+import { StyleSheet, View, TouchableOpacity, Image, Text, Modal, TouchableHighlight, ImageBackground } from "react-native";
 
 export default class Board extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       gameState: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
       currentPlayer: 1,
-      plays: 1
+      plays: 1,
+      modalVisible: false,
+      whoWhon: 0
     };
   }
 
@@ -31,6 +25,19 @@ export default class Board extends React.Component {
       plays: 1
     });
   };
+
+  reinitializeGame = () => {
+    this.setModalVisible(!this.state.modalVisible);
+    this.setState({
+      gameState: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+      currentPlayer: 1,
+      plays: 1
+    });
+  };
+
+  setModalVisible(visible) {
+    this.setState({ modalVisible: visible });
+  }
 
   //Return 1 if player 1 won, -1 if player 2 won or 0 if no one has won.
   getWinner = () => {
@@ -72,13 +79,11 @@ export default class Board extends React.Component {
     } else if (sum == -3) {
       return -1;
     }
-
-    //No winners
   };
 
   onBoardPress = (row, col) => {
     let turns = this.state.plays + 1;
-    this.setState({ 
+    this.setState({
       plays: turns
     })
     console.log(this.state.plays)
@@ -86,35 +91,36 @@ export default class Board extends React.Component {
     var value = this.state.gameState[row][col];
     if (value !== 0) {
       return;
-    } 
-
+    }
     //Grab current player
     var currentPlayer = this.state.currentPlayer;
-
     //Getting board
     var boardArr = this.state.gameState.slice();
     boardArr[row][col] = currentPlayer;
     this.setState({ gameState: boardArr });
-
     //Switching players
     var nextPlayer = currentPlayer == 1 ? -1 : 1;
     this.setState({ currentPlayer: nextPlayer });
-
     //Getting Winners
     var winner = this.getWinner();
     if (winner == 1) {
-      Alert.alert("¡DOG ES EL GANADOR!");
-      this.initializeGame();
+      this.setModalVisible(true)
+      this.setState({
+        whoWhon: "🐶 GANASTE"
+      })
     } else if (winner == -1) {
-      Alert.alert("¡CAT ES EL GANADOR!");
-      this.initializeGame();
+      this.setModalVisible(true)
+      this.setState({
+        whoWhon: "🐱 GANASTE"
+      })
     } else if (this.state.plays == 9 && winner != -1 && 1) {
-      Alert.alert("no one has won");
-      this.initializeGame();
+      this.setModalVisible(true)
+      this.setState({
+        whoWhon: "EMPATE 🐶 🐱"
+      })
     }
   };
 
-  
   renderIcon = (row, col) => {
     var value = this.state.gameState[row][col];
     switch (value) {
@@ -148,118 +154,135 @@ export default class Board extends React.Component {
   };
 
   whosNext = () => {
-    if(this.state.currentPlayer == 1) {
+    if (this.state.currentPlayer == 1) {
       return (
-        <Image
-            source={{ uri: "http://i67.tinypic.com/r0q9zb.png" }}
-            style={{
-              width: 40,
-              height: 40,
-              alignSelf: "center",
-              marginVertical: 18
-            }}
-          />
+        "🐶"
       )
     } else if (this.state.currentPlayer == -1) {
       return (
-        <Image
-        source={{ uri: "http://i65.tinypic.com/j5dlso.png" }}
-        style={{
-          width: 40,
-          height: 40,
-          alignSelf: "center",
-          marginVertical: 18
-        }}
-      />
+        "🐱"
       )
     }
   }
 
   render() {
     return (
-      <View>
-
-<View style={{marginBottom: 30}}><Text style={styles.bigBlue}>SIGUIENTE JUGADOR:</Text> 
-
-{this.whosNext()}
-</View>
-       
-       <View style={{marginBottom: 30}}>
-        <View style={{ flexDirection: "row"}}>
-          <TouchableOpacity
-            onPress={() => this.onBoardPress(0, 0)}
-            style={[styles.board, { borderLeftWidth: 0, borderTopWidth: 0 }]}
-          >
-            {this.renderIcon(0, 0)}
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.onBoardPress(0, 1)}
-            style={[styles.board, { borderTopWidth: 0 }]}
-          >
-            {this.renderIcon(0, 1)}
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.onBoardPress(0, 2)}
-            style={[styles.board, { borderTopWidth: 0, borderRightWidth: 0 }]}
-          >
-            {this.renderIcon(0, 2)}
-          </TouchableOpacity>
-        </View>
-
-        <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity
-            onPress={() => this.onBoardPress(1, 0)}
-            style={[styles.board, { borderLeftWidth: 0 }]}
-          >
-            {this.renderIcon(1, 0)}
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.onBoardPress(1, 1)}
-            style={styles.board}
-          >
-            {this.renderIcon(1, 1)}
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.onBoardPress(1, 2)}
-            style={[styles.board, { borderRightWidth: 0 }]}
-          >
-            {this.renderIcon(1, 2)}
-          </TouchableOpacity>
-        </View>
-
-        <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity
-            onPress={() => this.onBoardPress(2, 0)}
-            style={[
-              styles.board,
-              styles.green,
-              { borderLeftWidth: 0, borderBottomWidth: 0 }
-            ]}
-          >
-            {this.renderIcon(2, 0)}
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.onBoardPress(2, 1)}
-            style={[styles.board, { borderBottomWidth: 0 }]}
-          >
-            {this.renderIcon(2, 1)}
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.onBoardPress(2, 2)}
-            style={[
-              styles.board,
-              { borderRightWidth: 0, borderBottomWidth: 0 }
-            ]}
-          >
-            {this.renderIcon(2, 2)}
-          </TouchableOpacity>
+      <ImageBackground source={{ uri: "http://i65.tinypic.com/296gl5z.jpg" }} style={{ width: '100%', height: '100%' }}>
+        <View>
+          <View style={{ marginTop: 120, marginLeft: 38 }}>
+            <Text style={styles.bigBlue}>{this.whosNext()} ES TU TURNO</Text>
           </View>
-        </View>
+          <View style={{ marginTop: 35, marginLeft: 30 }}>
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                onPress={() => this.onBoardPress(0, 0)}
+                style={[styles.board, { borderLeftWidth: 0, borderTopWidth: 0 }]}
+              >
+                {this.renderIcon(0, 0)}
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.onBoardPress(0, 1)}
+                style={[styles.board, { borderTopWidth: 0 }]}
+              >
+                {this.renderIcon(0, 1)}
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.onBoardPress(0, 2)}
+                style={[styles.board, { borderTopWidth: 0, borderRightWidth: 0 }]}
+              >
+                {this.renderIcon(0, 2)}
+              </TouchableOpacity>
+            </View>
 
-       
-        <Button title="REINICIAR JUEGO" onPress={this.initializeGame}/>
-      
-      </View>
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                onPress={() => this.onBoardPress(1, 0)}
+                style={[styles.board, { borderLeftWidth: 0 }]}
+              >
+                {this.renderIcon(1, 0)}
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.onBoardPress(1, 1)}
+                style={styles.board}
+              >
+                {this.renderIcon(1, 1)}
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.onBoardPress(1, 2)}
+                style={[styles.board, { borderRightWidth: 0 }]}
+              >
+                {this.renderIcon(1, 2)}
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                onPress={() => this.onBoardPress(2, 0)}
+                style={[
+                  styles.board,
+                  styles.green,
+                  { borderLeftWidth: 0, borderBottomWidth: 0 }
+                ]}
+              >
+                {this.renderIcon(2, 0)}
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.onBoardPress(2, 1)}
+                style={[styles.board, { borderBottomWidth: 0 }]}
+              >
+                {this.renderIcon(2, 1)}
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.onBoardPress(2, 2)}
+                style={[
+                  styles.board,
+                  { borderRightWidth: 0, borderBottomWidth: 0 }
+                ]}
+              >
+                {this.renderIcon(2, 2)}
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={{ marginTop: 22 }}>
+            <Modal
+              animationType="slide"
+              transparent={false}
+              visible={this.state.modalVisible}>
+              <ImageBackground source={{ uri: "http://i65.tinypic.com/296gl5z.jpg" }} style={{ width: '100%', height: '100%' }}>
+                <View style={{ marginTop: 22 }}>
+                  <View style={{ marginTop: 230 }}>
+                    <Text
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: 35,
+                        color: "steelblue",
+                        alignSelf: 'center'
+                      }}
+                    > {this.state.whoWhon} </Text>
+
+                    <Button
+                      title="¡JUGAR DE NUEVO!"
+                      titleStyle={{ color: 'white' }}
+                      type="clear"
+                      containerStyle={[{ backgroundColor: 'palevioletred', borderRadius: 30, width: 200, marginLeft: 85, marginTop: 40 }]}
+                      onPress={this.reinitializeGame}>
+                    </Button>
+                  </View>
+                </View>
+              </ImageBackground>
+            </Modal>
+          </View>
+
+          <Button
+            title="REINICIAR"
+            titleStyle={{ color: 'white' }}
+            type="clear"
+            containerStyle={[{ marginTop: 16, backgroundColor: 'lightcoral', borderRadius: 30, width: 140, marginLeft: 30 }]}
+            onPress={this.initializeGame}>
+          </Button>
+        </View>
+      </ImageBackground>
     );
   }
 }
@@ -269,11 +292,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: 100,
     height: 100,
-    borderColor: "#7ed957"
+    borderColor: "steelblue"
   }, bigBlue: {
-    color: "#00ced1",
+    color: "palevioletred",
     fontWeight: 'bold',
-    fontSize: 25,
-    alignSelf: 'center'
+    fontSize: 35,
+    alignSelf: 'auto'
   }
 });

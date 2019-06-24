@@ -5,7 +5,7 @@ import Board from './application/components/Board';
 export default class App extends React.Component {
   render() {
     return (
-      <ImageBackground source={{ uri: "http://i68.tinypic.com/28s4sqw.png" }} style={{width: '100%', height: '100%'}}>
+      <ImageBackground source={{ uri: "http://i65.tinypic.com/296gl5z.jpg" }} style={{width: '100%', height: '100%'}}>
     <View style={styles.container}>
       <Board />
     </View>
